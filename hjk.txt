@@ -1,0 +1,412 @@
+
+////////////
+package archivo;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Locale;
+import java.util.Scanner;
+
+public class Archivo {
+	private String nombre;
+
+	public Archivo(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public double[] leerArchivo() {
+		Scanner scanner = null;
+		double[] datos = null;
+
+		try {
+			File file = new File("casos de prueba/in/" + this.nombre + ".in");
+			scanner = new Scanner(file);
+			// Especifica la configuración regional que se va a utilizar
+			scanner.useLocale(Locale.ENGLISH);
+			// Para la configuración regional de Argentina, utilizar:
+			// arch.useLocale(new Locale("es_AR"));
+
+			int cant = scanner.nextInt();
+			datos = new double[cant];
+			for (int i = 0; i < cant; i++) {
+				double n = scanner.nextDouble();
+				datos[i] = n;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			// Cerrar el archivo, eso es mucho muy importante
+			scanner.close();
+		}
+		return datos;
+	}
+
+	public void guardarArchivo(double[] datos) {
+		FileWriter file = null;
+		PrintWriter printerWriter = null;
+
+		try {
+			file = new FileWriter("casos de prueba/out/" + this.nombre + ".out");
+			printerWriter = new PrintWriter(file);
+
+			for (int i = 0; i < datos.length; i++) {
+				// Imprime los datos y hace un salto de linea
+				printerWriter.println(datos[i]);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (file != null) {
+				try {
+					file.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}
+////////////////////////////////
+
+
+///T
+
+package empleado;
+
+public abstract class Empleado {
+	protected String nombre; 
+	protected int id;
+	protected Double salarioBase;
+	
+	public Empleado(String nombre, int id, Double salario) {
+		this.nombre = nombre;
+		this.id = id;
+		this.salarioBase = salario;
+	}
+		
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public Double getSalarioBase() {
+		return salarioBase;
+	}
+
+	public void setSalarioBase(Double salarioBase) {
+		this.salarioBase = salarioBase;
+	}
+
+	public abstract double calcularSalario();
+}
+
+
+package empleado;
+
+public class Administrativo extends Empleado{
+	private int cantAnios;
+	
+	public Administrativo(String nombre, int id, Double salario, int cantAnios) {
+		super(nombre, id, salario);
+		this.cantAnios = cantAnios;
+	}
+
+	public int getCantAnios() {
+		return cantAnios;
+	}
+
+	public void setCantAnios(int cantAnios) {
+		this.cantAnios = cantAnios;
+	}
+	
+	@Override
+    public double calcularSalario() {
+        return getSalarioBase() + (getSalarioBase() * 0.05 * cantAnios);
+    }
+	
+}
+package empleado;
+
+public class Operario extends Empleado{
+	private int unidadesProducidas;
+	
+	public Operario(String nombre, int id, Double salario, int unidadesProducidas) {
+		super(nombre, id, salario);
+		this.unidadesProducidas = unidadesProducidas;
+	}
+
+	public int getUnidadesProducidas() {
+		return unidadesProducidas;
+	}
+
+	public void setUnidadesProducidas(int unidadesProducidas) {
+		this.unidadesProducidas = unidadesProducidas;
+	}
+	
+	@Override
+	public double calcularSalario() {
+		return this.unidadesProducidas * this.getSalarioBase() * 0.02 + this.getSalarioBase();
+	}
+}
+
+
+package test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import empleado.Administrativo;
+import empleado.Empleado;
+import empleado.Operario;
+
+class EmpleadosTest {
+		
+
+	@Test
+	void testAdmin() {
+		Empleado admin = new Administrativo("Juan", 123, 1500.0, 5);
+		assertEquals(1875, admin.calcularSalario());
+	}
+	
+	void testOper() {
+        Empleado operario = new Operario("Pedro", 456, 1200.0, 1000);
+        assertEquals(1875, operario.calcularSalario());
+	}
+
+}
+///Composite
+package ejercicio01;
+
+///Componente
+public interface Forma {
+	double calcularArea();
+}
+
+//
+package ejercicio01;
+
+//Hoja: puede contener varias clases que sean hojas
+public class FormaGeometrica implements Forma {
+	private double area;
+	
+	public FormaGeometrica(double area) {
+		this.area = area;
+	}
+	
+	@Override
+	public double calcularArea() {
+		return area;
+	}
+
+}
+
+//
+package ejercicio01;
+
+import java.util.ArrayList;
+import java.util.List;
+
+//Composite
+public class GrupoFormas implements Forma{
+	private List<Forma> formas = new ArrayList<Forma>();
+	
+	public void agregarForma(Forma forma) {
+		formas.add(forma);
+	}
+
+	@Override
+	public double calcularArea() {
+		double areaTotal = 0;
+		for (Forma forma : formas) {
+			areaTotal += forma.calcularArea();
+		}
+		return areaTotal;
+	}
+}
+
+//Stage
+
+package ejercicio02;
+
+public interface TankState {
+	void moverse();
+	void atacar();
+}
+
+package ejercicio02;
+
+public class Tank implements TankState{
+	private TankState state;
+	
+	public Tank() {
+		this.state = new TankModeTankState(this);
+	}
+	
+	public void setState(TankState state) {
+		this.state = state;
+	}
+
+	@Override
+	public void moverse() {
+		state.moverse();
+	}
+
+	@Override
+	public void atacar() {
+		state.atacar();		
+	}
+
+}
+
+
+package ejercicio02;
+
+public class TankModeSiegeState implements TankState{
+	private Tank tank;
+	
+	public TankModeSiegeState(Tank tank) {
+		this.tank = tank;
+	}
+	@Override
+	public void moverse() {
+		System.out.println("El tanque se mueve en modo asedio.");
+	}
+
+	@Override
+	public void atacar() {
+		System.out.println("El tanque ataca en modo asedio.");		
+	}
+
+}
+
+package ejercicio02;
+
+public class TankModeTankState implements TankState{
+	private Tank tank;
+	
+	public TankModeTankState(Tank tank) {
+		this.tank = tank;
+	}
+	@Override
+	public void moverse() {
+		System.out.println("El tanque se mueve en modo ataque");
+	}
+
+	@Override
+	public void atacar() {
+		System.out.println("El tanque ataca en modo ataque");
+	}
+
+}
+
+///
+nota(a, 1).
+nota(b, 3).
+nota(c, 2).
+nota(d, 4).
+nota(e, 8).
+nota(f, 6).
+
+producto_cartesiano(X, Y):-nota(_, X), nota(_, Y).
+
+seleccion(X, Y):-producto_cartesiano(X, Y), X < Y. 
+
+% Para este paso
+% - Mi X va a tener todos los valores posibles menos el máximo
+% - Mi Y todos menos el mínimo
+
+% Decido con que parte me quedo. Esta parte va a ser lo que se reste del conjunto total
+proyeccion(X):-seleccion(X, _).
+
+% En caso de haber más de un máximo, obtendremos un resultado por cada uno
+max_nota(X):-nota(_, X), \+ proyeccion(X).
+
+max_nota(X, Alumno):-nota(Alumno, X), \+ proyeccion(X).
+
+seleccion2(X, Y):-
+    proyeccion(X),
+    proyeccion(Y),
+    X < Y.
+
+proyeccion2(X):-
+    seleccion2(X, _).
+
+maxNota2(X):-
+    nota(_,X), \+ proyeccion2(X).
+maxNota2(X, Alumno):-
+    nota(Alumno, X), \+ proyeccion2(X).
+
+
+seleccion3(X, Y):-
+    proyeccion2(X),
+    proyeccion2(Y),
+    X < Y.
+
+proyeccion3(X):-
+    seleccion3(X, _).
+
+maxNota3(X):-
+    nota(_, X), \+ proyeccion3(X).
+maxNota3(Nota, Alumno):-
+	nota(Alumno, Nota), \+ proyeccion3(Nota).
+
+
+x = 1
+xs = [2, 3]
+
+y = 9
+ys = [8, 7]
+{-
+x:xs    -- válido
+x++xs   -- no válido
+
+xs:ys   -- no válido
+xs++ys  -- válido
+-}
+x:xs
+xs++ys
+
+-- cola
+enqueue :: a -> [a] -> [a]
+enqueue x xs = xs++[x]
+
+enqueue 9 [1, 2, 3]
+enqueue 4 []
+
+-- cola
+dequeue :: [a] -> (a, [a])
+dequeue (x:xs) = (x, xs)
+dequeue [] = error "cola vacia"
+
+dequeue [1, 2, 3, 4]
+--dequeue []
+
+-- pila
+push :: a -> [a] -> [a]
+push x xs = x:xs
+
+push 9 [1, 2, 3]
+push 3 []
+
+-- pila
+pop :: [a] -> (a, [a])
+pop xs = (x, xs)
+pop [] = error "pila vacia"
+
+pop [1, 2, 3, 4]
+-- pop []
